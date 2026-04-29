@@ -2,271 +2,309 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>SmoothView</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#060810;
-  --bg2:#0c0f1a;
-  --bg3:#111624;
-  --bg4:#181d2e;
-  --border:#1e2540;
-  --border2:#2a3356;
-  --acc:#e8ff47;
-  --acc2:#47c5ff;
-  --acc3:#ff6b6b;
-  --text:#eef0f8;
-  --muted:#4a5280;
-  --muted2:#6b75a0;
-  --r:10px;
+  --bg:#060810;--bg2:#0c0f1a;--bg3:#111624;--bg4:#181d2e;
+  --border:#1e2540;--border2:#2a3356;
+  --acc:#e8ff47;--acc2:#47c5ff;--acc3:#ff6b6b;--acc4:#a78bfa;
+  --text:#eef0f8;--muted:#4a5280;--muted2:#6b75a0;--r:10px;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden}
-
-/* ── AMBIENT GLOW ── */
 body::before{
   content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);
-  width:800px;height:400px;
-  background:radial-gradient(ellipse,rgba(232,255,71,.04) 0%,transparent 70%);
+  width:900px;height:500px;
+  background:radial-gradient(ellipse,rgba(232,255,71,.035) 0%,transparent 70%);
   pointer-events:none;z-index:0;
 }
 
 /* ── HEADER ── */
 header{
-  position:relative;z-index:10;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 40px;
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(20px);
+  position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;
+  padding:16px 36px;border-bottom:1px solid var(--border);
 }
-.logo{font-size:22px;font-weight:800;letter-spacing:3px;color:var(--text)}
+.logo{font-size:21px;font-weight:800;letter-spacing:3px;color:var(--text)}
 .logo span{color:var(--acc)}
+.header-right{display:flex;align-items:center;gap:12px}
 .pill{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;
   padding:4px 12px;border:1px solid var(--border2);color:var(--muted2);border-radius:20px}
+.kbd-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
 
 /* ── MAIN ── */
-main{
-  position:relative;z-index:5;
-  max-width:960px;margin:0 auto;
-  padding:50px 24px 100px;
-}
+main{position:relative;z-index:5;max-width:980px;margin:0 auto;padding:40px 20px 80px}
 
 /* ── INPUT CARD ── */
-.input-card{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:28px;
-  margin-bottom:28px;
-}
-.card-label{
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;letter-spacing:3px;
-  color:var(--muted);margin-bottom:12px;text-transform:uppercase;
-}
-.url-row{display:flex;gap:12px}
+.input-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.card-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:10px;text-transform:uppercase}
+.url-row{display:flex;gap:10px}
 #videoUrl{
-  flex:1;
-  background:var(--bg);
-  border:1px solid var(--border2);
-  border-radius:var(--r);
-  padding:14px 18px;
-  color:var(--text);
-  font-family:'JetBrains Mono',monospace;
-  font-size:13px;outline:none;
-  transition:border-color .2s,box-shadow .2s;
+  flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);
+  padding:13px 16px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;
+  outline:none;transition:border-color .2s,box-shadow .2s;
 }
 #videoUrl::placeholder{color:var(--muted)}
 #videoUrl:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(232,255,71,.08)}
 #loadBtn{
-  background:var(--acc);color:#060810;
-  border:none;border-radius:var(--r);
-  padding:14px 32px;
-  font-family:'Syne',sans-serif;
-  font-size:15px;font-weight:700;letter-spacing:1px;
-  cursor:pointer;white-space:nowrap;
-  transition:opacity .2s,transform .15s;
+  background:var(--acc);color:#060810;border:none;border-radius:var(--r);
+  padding:13px 28px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;
+  cursor:pointer;white-space:nowrap;transition:opacity .2s,transform .15s;
 }
 #loadBtn:hover{opacity:.88;transform:translateY(-1px)}
 #loadBtn:active{transform:translateY(0)}
 #loadBtn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 
-/* ── STATUS ── */
+/* ── STATUS BAR ── */
 #statusBar{
-  display:none;margin-top:16px;
-  padding:12px 16px;border-radius:var(--r);
-  font-family:'JetBrains Mono',monospace;font-size:12px;
-  border-left:3px solid;letter-spacing:.3px;
-  align-items:center;gap:10px;
+  display:none;margin-top:14px;padding:11px 14px;border-radius:var(--r);
+  font-family:'JetBrains Mono',monospace;font-size:12px;border-left:3px solid;
+  letter-spacing:.3px;align-items:center;gap:10px;
 }
-#statusBar.info{display:flex;background:rgba(71,197,255,.07);border-color:var(--acc2);color:var(--acc2)}
-#statusBar.error{display:flex;background:rgba(255,107,107,.08);border-color:var(--acc3);color:var(--acc3)}
+#statusBar.info   {display:flex;background:rgba(71,197,255,.07);border-color:var(--acc2);color:var(--acc2)}
+#statusBar.error  {display:flex;background:rgba(255,107,107,.08);border-color:var(--acc3);color:var(--acc3)}
 #statusBar.success{display:flex;background:rgba(232,255,71,.07);border-color:var(--acc);color:var(--acc)}
-.spin{width:12px;height:12px;border:2px solid currentColor;border-top-color:transparent;
+#statusBar.warn   {display:flex;background:rgba(167,139,250,.08);border-color:var(--acc4);color:var(--acc4)}
+.spin{width:11px;height:11px;border:2px solid currentColor;border-top-color:transparent;
   border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── STEPS ── */
-#steps{
-  display:none;margin-top:14px;
-  border:1px solid var(--border);border-radius:var(--r);
-  overflow:hidden;
+#retryBtn{
+  margin-left:auto;background:none;border:1px solid currentColor;color:inherit;
+  border-radius:6px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;
+  cursor:pointer;white-space:nowrap;opacity:.8;transition:opacity .15s;flex-shrink:0;
 }
+#retryBtn:hover{opacity:1}
+
+/* ── CONVERT STEPS ── */
+#steps{display:none;margin-top:12px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
 .step-track{display:flex}
 .step{
-  flex:1;padding:10px 6px;text-align:center;
-  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;
-  color:var(--muted);border-right:1px solid var(--border);
-  transition:all .3s;
+  flex:1;padding:9px 4px;text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.2px;
+  color:var(--muted);border-right:1px solid var(--border);transition:all .3s;
 }
 .step:last-child{border-right:none}
 .step.active{color:var(--acc2);background:rgba(71,197,255,.06)}
 .step.done{color:var(--acc);background:rgba(232,255,71,.05)}
 .step.done::before{content:'✓ '}
 
-/* ── PLAYER SECTION ── */
-#playerWrap{
-  display:none;
-  animation:fadeUp .4s ease;
-}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* ── PLAYER ── */
+#playerWrap{display:none;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
 .player-shell{
-  background:#000;
-  border-radius:16px 16px 0 0;
-  overflow:hidden;
-  border:1px solid var(--border);
-  border-bottom:none;
-  position:relative;
-}
-#vid{
-  width:100%;display:block;
-  max-height:500px;background:#000;
-  cursor:pointer;
+  background:#000;border-radius:16px 16px 0 0;overflow:hidden;
+  border:1px solid var(--border);border-bottom:none;position:relative;
 }
 
-/* ── CONTROLS ── */
+/* Loading overlay */
+#loadOverlay{
+  position:absolute;inset:0;background:rgba(6,8,16,.88);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;z-index:20;transition:opacity .3s;
+}
+#loadOverlay.hidden{opacity:0;pointer-events:none}
+.load-ring{
+  width:46px;height:46px;border:3px solid var(--border2);border-top-color:var(--acc);
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+#loadMsg{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted2);letter-spacing:1px}
+.load-bar-wrap{width:160px;height:2px;background:var(--border2);border-radius:1px;overflow:hidden}
+#loadBar{height:100%;background:var(--acc);border-radius:1px;width:0%;transition:width .4s ease}
+
+/* Tap ripple */
+.tap-ripple{
+  position:absolute;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:#fff;
+  pointer-events:none;opacity:0;transition:opacity .15s;z-index:15;
+}
+.tap-ripple.show{opacity:1;transition:opacity 0s}
+.tap-ripple.left{left:10%}
+.tap-ripple.right{right:10%}
+.tap-ripple svg{width:28px;height:28px;fill:#fff;opacity:.85}
+
+#vid{width:100%;display:block;max-height:510px;background:#000;cursor:pointer;outline:none}
+
+/* ── CTRL PANEL ── */
 .ctrl-panel{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-top:none;
-  border-radius:0 0 16px 16px;
-  padding:16px 20px 18px;
+  background:var(--bg2);border:1px solid var(--border);border-top:none;
+  border-radius:0 0 16px 16px;padding:14px 18px 16px;
 }
 
-/* progress */
-.prog-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.time{
-  font-family:'JetBrains Mono',monospace;font-size:11px;
-  color:var(--muted2);white-space:nowrap;min-width:38px;
-}
+/* Seek row */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2);white-space:nowrap;min-width:38px}
 .time.right{text-align:right}
-.prog-wrap{flex:1;position:relative;height:20px;display:flex;align-items:center;cursor:pointer}
-.track{position:absolute;width:100%;height:4px;background:var(--border2);border-radius:2px}
-#bufBar{position:absolute;height:4px;background:rgba(255,255,255,.12);border-radius:2px;width:0%;transition:width .3s}
+.prog-wrap{flex:1;position:relative;height:22px;display:flex;align-items:center;cursor:pointer}
+.track{position:absolute;width:100%;height:4px;background:var(--border2);border-radius:2px;transition:height .15s}
+#bufBar{position:absolute;height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:0%;pointer-events:none;transition:height .15s}
+.played-track{position:absolute;height:4px;background:var(--acc);border-radius:2px;pointer-events:none;width:0%;transition:height .15s}
+.prog-wrap:hover .track,
+.prog-wrap:hover #bufBar,
+.prog-wrap:hover .played-track{height:6px}
 #seekBar{
-  position:absolute;width:100%;height:4px;
-  -webkit-appearance:none;appearance:none;
-  background:transparent;border-radius:2px;outline:none;cursor:pointer;
+  position:absolute;width:100%;height:100%;
+  -webkit-appearance:none;appearance:none;background:transparent;outline:none;cursor:pointer;z-index:2;
 }
 #seekBar::-webkit-slider-thumb{
-  -webkit-appearance:none;width:14px;height:14px;
-  background:var(--acc);border-radius:50%;cursor:pointer;
-  transition:transform .15s;box-shadow:0 0 8px rgba(232,255,71,.5);
+  -webkit-appearance:none;width:0;height:0;background:transparent;
 }
-#seekBar:hover::-webkit-slider-thumb{transform:scale(1.3)}
-.played-track{
-  position:absolute;height:4px;background:var(--acc);
-  border-radius:2px;pointer-events:none;width:0%;
+.prog-wrap:hover #seekBar::-webkit-slider-thumb,
+.prog-wrap:active #seekBar::-webkit-slider-thumb{
+  width:14px;height:14px;background:var(--acc);border-radius:50%;
+  box-shadow:0 0 8px rgba(232,255,71,.6);
 }
+#seekThumb{
+  position:absolute;width:13px;height:13px;background:var(--acc);border-radius:50%;
+  pointer-events:none;transform:translateX(-50%) scale(0);transition:transform .15s;
+  z-index:3;top:50%;margin-top:-6.5px;box-shadow:0 0 8px rgba(232,255,71,.5);
+}
+.prog-wrap:hover #seekThumb{transform:translateX(-50%) scale(1)}
+#seekTooltip{
+  position:absolute;bottom:26px;transform:translateX(-50%);
+  background:var(--bg4);border:1px solid var(--border2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);
+  padding:3px 8px;border-radius:5px;pointer-events:none;
+  opacity:0;transition:opacity .12s;white-space:nowrap;z-index:4;
+}
+.prog-wrap:hover #seekTooltip{opacity:1}
 
-/* buttons row */
-.btn-row{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-}
+/* Buttons */
+.btn-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .cb{
-  background:var(--bg3);border:1px solid var(--border2);
-  color:var(--text);border-radius:8px;
-  padding:9px 14px;cursor:pointer;font-size:13px;
-  display:flex;align-items:center;gap:6px;
-  transition:all .15s;font-family:'Syne',sans-serif;font-weight:500;
-  flex-shrink:0;
+  background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  border-radius:8px;padding:8px 13px;cursor:pointer;font-size:13px;
+  display:flex;align-items:center;gap:5px;
+  transition:background .12s,border-color .12s,transform .1s;
+  font-family:'Syne',sans-serif;font-weight:500;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;user-select:none;
 }
-.cb:hover{background:var(--bg4);border-color:var(--muted2);transform:translateY(-1px)}
-.cb:active{transform:translateY(0);background:var(--border)}
-.cb svg{width:16px;height:16px;fill:currentColor;flex-shrink:0}
-.cb.primary{background:var(--acc);color:#060810;border-color:var(--acc);font-weight:700;font-size:14px}
-.cb.primary:hover{opacity:.85}
+.cb:hover{background:var(--bg4);border-color:var(--muted2)}
+.cb:active{transform:scale(.95)}
+.cb svg{width:16px;height:16px;fill:currentColor;flex-shrink:0;pointer-events:none}
+.cb.primary{
+  background:var(--acc);color:#060810;border-color:var(--acc);
+  font-weight:700;font-size:14px;min-width:92px;justify-content:center;
+}
+.cb.primary:hover{opacity:.87;background:var(--acc)}
 .cb.active{background:rgba(71,197,255,.15);border-color:var(--acc2);color:var(--acc2)}
 
-/* right side controls */
-.right-ctrl{display:flex;align-items:center;gap:10px;margin-left:auto}
-.vol-wrap{display:flex;align-items:center;gap:8px}
+/* Volume */
 #volSlider{
-  -webkit-appearance:none;appearance:none;
-  width:80px;height:4px;
-  background:var(--border2);border-radius:2px;outline:none;cursor:pointer;
+  -webkit-appearance:none;appearance:none;width:76px;height:4px;
+  background:var(--border2);border-radius:2px;outline:none;cursor:pointer;flex-shrink:0;
 }
 #volSlider::-webkit-slider-thumb{
-  -webkit-appearance:none;width:12px;height:12px;
-  background:var(--text);border-radius:50%;cursor:pointer;
-  transition:transform .15s;
+  -webkit-appearance:none;width:12px;height:12px;background:var(--text);
+  border-radius:50%;cursor:pointer;transition:transform .12s;
 }
-#volSlider:hover::-webkit-slider-thumb{transform:scale(1.25)}
+#volSlider::-webkit-slider-thumb:hover{transform:scale(1.3)}
+
+/* Speed */
 #speedSel{
-  background:var(--bg3);border:1px solid var(--border2);
-  color:var(--text);border-radius:8px;
-  padding:9px 10px;font-family:'JetBrains Mono',monospace;font-size:12px;
-  cursor:pointer;outline:none;
+  background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  border-radius:8px;padding:8px 10px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;cursor:pointer;outline:none;transition:border-color .15s;flex-shrink:0;
 }
 #speedSel:hover{border-color:var(--muted2)}
 
-/* stream url bar */
+/* URL bar */
 .url-display{
-  margin-top:14px;
-  display:flex;align-items:center;gap:10px;
-  background:var(--bg);border:1px solid var(--border);
-  border-radius:8px;padding:10px 14px;
+  margin-top:12px;display:flex;align-items:center;gap:10px;
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;
 }
 .url-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);white-space:nowrap}
-#streamUrlTxt{
-  font-family:'JetBrains Mono',monospace;font-size:11px;
-  color:var(--acc2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
+#streamUrlTxt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--acc2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .copy-btn{
   background:none;border:1px solid var(--border2);color:var(--muted2);
-  border-radius:6px;padding:4px 10px;
-  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;
-  cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;
+  border-radius:6px;padding:3px 9px;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:1px;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;
 }
 .copy-btn:hover{color:var(--text);border-color:var(--muted)}
 
-/* fullscreen */
+/* ── HISTORY ── */
+#historyWrap{display:none;margin-top:28px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:12px;font-weight:600;letter-spacing:2px;color:var(--muted2);text-transform:uppercase}
+.clear-btn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:1px;transition:color .15s}
+.clear-btn:hover{color:var(--acc3)}
+.hist-list{display:flex;flex-direction:column;gap:6px}
+.hist-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:11px 14px;cursor:pointer;transition:all .15s;
+}
+.hist-item:hover{background:var(--bg3);border-color:var(--border2);transform:translateX(3px)}
+.hist-thumb{
+  width:36px;height:36px;border-radius:6px;background:var(--bg3);
+  border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.hist-thumb svg{width:16px;height:16px;fill:var(--muted2)}
+.hist-info{flex:1;min-width:0}
+.hist-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
+.hist-url{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hist-type{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;
+  padding:2px 8px;border-radius:10px;border:1px solid;
+}
+.t-hls{color:#47c5ff;border-color:rgba(71,197,255,.3);background:rgba(71,197,255,.07)}
+.t-dash{color:#a78bfa;border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.07)}
+.t-mp4,.t-webm{color:#e8ff47;border-color:rgba(232,255,71,.3);background:rgba(232,255,71,.07)}
+.t-native{color:#6b75a0;border-color:rgba(107,117,160,.3);background:rgba(107,117,160,.06)}
+.hist-play{
+  background:var(--acc);color:#060810;border:none;border-radius:6px;
+  padding:5px 12px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;transition:opacity .15s;white-space:nowrap;
+}
+.hist-play:hover{opacity:.85}
+
+/* ── RESUME TOAST ── */
+#resumeToast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--bg3);border:1px solid var(--border2);border-radius:12px;
+  padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);
+  z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.6);
+  display:none;align-items:center;gap:14px;
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+#resumeToast.visible{display:flex}
+.toast-btns{display:flex;gap:8px}
+.toast-yes{background:var(--acc);color:#060810;border:none;border-radius:6px;padding:5px 14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.toast-no{background:none;border:1px solid var(--border2);color:var(--muted2);border-radius:6px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap}
+
+/* Fullscreen */
 .player-shell:fullscreen,
-.player-shell:-webkit-full-screen{
-  max-width:none;border-radius:0;
-}
+.player-shell:-webkit-full-screen{border-radius:0}
 .player-shell:fullscreen #vid,
-.player-shell:-webkit-full-screen #vid{max-height:100vh}
+.player-shell:-webkit-full-screen #vid{max-height:100vh;height:100vh}
+.player-shell:fullscreen .ctrl-panel{display:none}
+.player-shell:fullscreen .tap-ripple,
+.player-shell:-webkit-full-screen .tap-ripple{font-size:14px}
 
-/* footer */
-footer{
-  text-align:center;padding:28px;
-  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;
-  color:var(--muted);border-top:1px solid var(--border);margin-top:60px;
-}
+/* ── FOOTER ── */
+footer{text-align:center;padding:24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);border-top:1px solid var(--border);margin-top:40px}
 
-/* responsive */
-@media(max-width:600px){
-  header{padding:14px 20px}
-  main{padding:30px 16px 80px}
+/* ── RESPONSIVE ── */
+@media(max-width:620px){
+  header{padding:12px 16px}
+  .kbd-hint{display:none}
+  main{padding:24px 12px 60px}
   .url-row{flex-direction:column}
   #loadBtn{width:100%}
-  .right-ctrl{flex-wrap:wrap;margin-left:0;width:100%}
-  #volSlider{width:100px}
+  .btn-row{gap:5px}
+  .cb{padding:8px 10px;font-size:12px}
+  #volSlider{width:60px}
+  #vid{max-height:230px}
+  .hist-meta{display:none}
+}
+@media(max-width:420px){
+  .cb .lbl{display:none}
+  .cb.primary .lbl{display:inline}
 }
 </style>
 </head>
@@ -274,24 +312,26 @@ footer{
 
 <header>
   <div class="logo">SMOOTH<span>VIEW</span></div>
-  <div class="pill">HLS PLAYER</div>
+  <div class="header-right">
+    <span class="kbd-hint">SPC · ←→ · M · F · P</span>
+    <div class="pill">v3.0</div>
+  </div>
 </header>
 
 <main>
 
   <!-- INPUT -->
   <div class="input-card">
-    <div class="card-label">// Video Source</div>
+    <div class="card-label">// Source — HLS · DASH · MP4 · Any Video URL</div>
     <div class="url-row">
-      <input type="url" id="videoUrl" placeholder="Paste .mp4 or .m3u8 URL here..." autocomplete="off" spellcheck="false">
+      <input type="url" id="videoUrl" placeholder="Paste .m3u8 / .mpd / .mp4 / any stream URL…" autocomplete="off" spellcheck="false">
       <button id="loadBtn" onclick="handleLoad()">LOAD</button>
     </div>
-
     <div id="statusBar">
       <div class="spin" id="spinEl" style="display:none"></div>
       <span id="statusMsg"></span>
+      <button id="retryBtn" style="display:none" onclick="retryLoad()">↺ RETRY</button>
     </div>
-
     <div id="steps">
       <div class="step-track">
         <div class="step" id="s1">01 · VALIDATE</div>
@@ -305,55 +345,68 @@ footer{
   <!-- PLAYER -->
   <div id="playerWrap">
     <div class="player-shell" id="shell">
-      <video id="vid" preload="auto"></video>
+
+      <!-- Loading overlay -->
+      <div id="loadOverlay">
+        <div class="load-ring"></div>
+        <div class="load-bar-wrap"><div id="loadBar"></div></div>
+        <div id="loadMsg">Initializing…</div>
+      </div>
+
+      <!-- Double-tap indicators -->
+      <div class="tap-ripple left" id="tapL">
+        <svg viewBox="0 0 24 24"><path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6h-2c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        <span>−10s</span>
+      </div>
+      <div class="tap-ripple right" id="tapR">
+        <svg viewBox="0 0 24 24"><path d="M12.01 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
+        <span>+10s</span>
+      </div>
+
+      <video id="vid" preload="auto" playsinline></video>
     </div>
 
+    <!-- Controls -->
     <div class="ctrl-panel">
-      <!-- SEEK BAR -->
+      <!-- Seek bar -->
       <div class="prog-row">
         <span class="time" id="curT">0:00</span>
         <div class="prog-wrap" id="progWrap">
           <div class="track"></div>
           <div id="bufBar"></div>
           <div class="played-track" id="playedBar"></div>
-          <input type="range" id="seekBar" min="0" max="1000" value="0" step="1">
+          <div id="seekThumb"></div>
+          <div id="seekTooltip">0:00</div>
+          <input type="range" id="seekBar" min="0" max="10000" value="0" step="1">
         </div>
         <span class="time right" id="durT">0:00</span>
       </div>
 
-      <!-- BUTTONS -->
+      <!-- Buttons -->
       <div class="btn-row">
-        <!-- Play/Pause -->
         <button class="cb primary" id="ppBtn" onclick="togglePlay()">
           <svg id="ppIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          <span id="ppLbl">Play</span>
+          <span class="lbl" id="ppLbl">Play</span>
         </button>
 
-        <!-- Back 10 -->
-        <button class="cb" onclick="skip(-10)" title="Back 10s">
+        <button class="cb" onclick="skip(-10)" title="Back 10s [←]">
           <svg viewBox="0 0 24 24"><path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6h-2c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-          10
+          <span class="lbl">10</span>
         </button>
 
-        <!-- Fwd 10 -->
-        <button class="cb" onclick="skip(10)" title="Forward 10s">
-          10
+        <button class="cb" onclick="skip(10)" title="Forward 10s [→]">
+          <span class="lbl">10</span>
           <svg viewBox="0 0 24 24"><path d="M12.01 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
         </button>
 
-        <!-- Mute -->
-        <button class="cb" id="muteBtn" onclick="toggleMute()">
+        <button class="cb" id="muteBtn" onclick="toggleMute()" title="Mute [M]">
           <svg id="volIcon" viewBox="0 0 24 24"><path id="volPath" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
         </button>
+        <input type="range" id="volSlider" min="0" max="1" step="0.02" value="1" oninput="setVol(this.value)" title="Volume [↑↓]">
 
-        <!-- Volume -->
-        <input type="range" id="volSlider" min="0" max="1" step="0.02" value="1" oninput="setVol(this.value)">
+        <div style="flex:1;min-width:4px"></div>
 
-        <!-- Spacer -->
-        <div style="flex:1"></div>
-
-        <!-- Speed -->
-        <select id="speedSel" onchange="setSpeed(this.value)">
+        <select id="speedSel" onchange="setSpeed(this.value)" title="Playback Speed">
           <option value="0.25">0.25×</option>
           <option value="0.5">0.5×</option>
           <option value="0.75">0.75×</option>
@@ -364,402 +417,734 @@ footer{
           <option value="2">2×</option>
         </select>
 
-        <!-- PiP -->
-        <button class="cb" id="pipBtn" onclick="togglePiP()" title="Picture-in-Picture">
-          <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
+        <button class="cb" id="pipBtn" onclick="togglePiP()" title="Picture-in-Picture [P]">
+          <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
         </button>
 
-        <!-- Fullscreen -->
-        <button class="cb" id="fsBtn" onclick="toggleFS()" title="Fullscreen">
+        <button class="cb" id="fsBtn" onclick="toggleFS()" title="Fullscreen [F]">
           <svg id="fsIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
         </button>
       </div>
 
-      <!-- STREAM URL -->
+      <!-- Stream URL -->
       <div class="url-display">
-        <span class="url-lbl">HLS</span>
+        <span class="url-lbl">SRC</span>
         <span id="streamUrlTxt">—</span>
         <button class="copy-btn" id="copyBtn" onclick="copyUrl()">COPY</button>
       </div>
     </div>
   </div>
 
+  <!-- HISTORY -->
+  <div id="historyWrap">
+    <div class="section-head">
+      <div class="section-title">Recent Videos</div>
+      <button class="clear-btn" onclick="clearHistory()">Clear All</button>
+    </div>
+    <div class="hist-list" id="histList"></div>
+  </div>
+
 </main>
 
-<footer>SMOOTHVIEW &nbsp;—&nbsp; HLS VIDEO CONVERTER &amp; PLAYER</footer>
+<!-- Resume toast -->
+<div id="resumeToast">
+  <span>Resume from <b id="resumeTime"></b>?</span>
+  <div class="toast-btns">
+    <button class="toast-yes" onclick="doResume()">Resume</button>
+    <button class="toast-no" onclick="dismissResume()">Start Over</button>
+  </div>
+</div>
+
+<footer>SMOOTHVIEW &nbsp;—&nbsp; HLS · DASH · MP4 · UNIVERSAL PLAYER</footer>
 
 <script>
-// ─────────────────────────────────────────────
-//  CONFIG — replace with your Render URL
-// ─────────────────────────────────────────────
-const BACKEND = "https://video-backend-99rs.onrender.com";
+// ═══════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════
+const BACKEND  = "https://video-backend-99rs.onrender.com";
+const HIST_KEY = "sv_hist_v3";
+const MAX_HIST = 20;
+const HLS_CDN  = "https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js";
+const DASH_CDN = "https://cdn.dashjs.org/latest/dash.all.min.js";
+const resumeKey = url => "sv_res_" + btoa(encodeURIComponent(url)).slice(0,48);
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 //  REFS
-// ─────────────────────────────────────────────
-const vid       = document.getElementById("vid");
-const statusBar = document.getElementById("statusBar");
-const statusMsg = document.getElementById("statusMsg");
-const spinEl    = document.getElementById("spinEl");
-const stepsEl   = document.getElementById("steps");
-const playerWrap= document.getElementById("playerWrap");
-const loadBtn   = document.getElementById("loadBtn");
-const ppBtn     = document.getElementById("ppBtn");
-const ppIcon    = document.getElementById("ppIcon");
-const ppLbl     = document.getElementById("ppLbl");
-const seekBar   = document.getElementById("seekBar");
-const bufBar    = document.getElementById("bufBar");
-const playedBar = document.getElementById("playedBar");
-const curT      = document.getElementById("curT");
-const durT      = document.getElementById("durT");
-const volSlider = document.getElementById("volSlider");
-const fsIcon    = document.getElementById("fsIcon");
-const shell     = document.getElementById("shell");
+// ═══════════════════════════════════
+const vid         = document.getElementById("vid");
+const statusBar   = document.getElementById("statusBar");
+const statusMsg   = document.getElementById("statusMsg");
+const spinEl      = document.getElementById("spinEl");
+const retryBtn    = document.getElementById("retryBtn");
+const stepsEl     = document.getElementById("steps");
+const playerWrap  = document.getElementById("playerWrap");
+const loadBtn     = document.getElementById("loadBtn");
+const loadOverlay = document.getElementById("loadOverlay");
+const loadMsg     = document.getElementById("loadMsg");
+const loadBar     = document.getElementById("loadBar");
+const seekBar     = document.getElementById("seekBar");
+const bufBar      = document.getElementById("bufBar");
+const playedBar   = document.getElementById("playedBar");
+const seekThumb   = document.getElementById("seekThumb");
+const seekTooltip = document.getElementById("seekTooltip");
+const curT        = document.getElementById("curT");
+const durT        = document.getElementById("durT");
+const ppIcon      = document.getElementById("ppIcon");
+const ppLbl       = document.getElementById("ppLbl");
+const volSlider   = document.getElementById("volSlider");
+const volPath     = document.getElementById("volPath");
+const fsIcon      = document.getElementById("fsIcon");
+const shell       = document.getElementById("shell");
+const tapL        = document.getElementById("tapL");
+const tapR        = document.getElementById("tapR");
+const resumeToast = document.getElementById("resumeToast");
 
-let hls         = null;
+// ═══════════════════════════════════
+//  STATE
+// ═══════════════════════════════════
+let hlsInst     = null;
+let dashInst    = null;
 let currentUrl  = null;
 let seekDragging= false;
+let lastUrl     = null;
+let pendingRes  = 0;
+let lbTimer     = null;
 
-// ─────────────────────────────────────────────
-//  STATUS HELPERS
-// ─────────────────────────────────────────────
-function setStatus(msg, type){ // type: info | error | success | hide
-  if(type === "hide"){ statusBar.style.display = "none"; return; }
+// ═══════════════════════════════════
+//  STATUS
+// ═══════════════════════════════════
+function setStatus(msg, type, showRetry=false){
   statusBar.className = type;
   statusMsg.textContent = msg;
-  spinEl.style.display = type === "info" ? "block" : "none";
+  spinEl.style.display  = type==="info"?"block":"none";
+  retryBtn.style.display= showRetry?"block":"none";
 }
+function hideStatus(){ statusBar.style.display="none"; }
+
+// ═══════════════════════════════════
+//  STEPS
+// ═══════════════════════════════════
 function setStep(n){
-  stepsEl.style.display = "block";
+  stepsEl.style.display="block";
   ["s1","s2","s3","s4"].forEach((id,i)=>{
-    const el = document.getElementById(id);
-    const idx = i+1;
-    el.className = "step" + (idx < n ? " done" : idx === n ? " active" : "");
+    const el=document.getElementById(id),idx=i+1;
+    el.className="step"+(idx<n?" done":idx===n?" active":"");
   });
 }
 function doneSteps(){
-  ["s1","s2","s3","s4"].forEach(id => document.getElementById(id).className="step done");
+  stepsEl.style.display="block";
+  ["s1","s2","s3","s4"].forEach(id=>document.getElementById(id).className="step done");
 }
 
-// ─────────────────────────────────────────────
-//  MAIN HANDLER
-// ─────────────────────────────────────────────
-async function handleLoad(){
-  const raw = document.getElementById("videoUrl").value.trim();
-  if(!raw){ setStatus("Paste a video URL first.", "error"); return; }
-
-  let url;
-  try{ url = new URL(raw); } catch{
-    setStatus("Not a valid URL.", "error"); return;
-  }
-  if(url.protocol !== "http:" && url.protocol !== "https:"){
-    setStatus("URL must start with http:// or https://", "error"); return;
-  }
-
-  loadBtn.disabled = true;
-  playerWrap.style.display = "none";
-
-  // ── Direct .m3u8 ──
-  if(raw.includes(".m3u8")){
-    setStep(1); setStatus("Loading HLS stream…", "info");
-    await sleep(200);
-    doneSteps();
-    setStatus("Streaming directly.", "success");
-    loadHLS(raw);
-    loadBtn.disabled = false;
-    return;
-  }
-
-  // ── .mp4 → backend convert ──
-  setStep(1); setStatus("Validating URL…", "info");
-  await sleep(300);
-
-  setStep(2); setStatus("Downloading video on server…", "info");
-
-  let data;
-  try{
-    const res = await fetch(`${BACKEND}/convert`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ url: raw })
-    });
-    setStep(3); setStatus("Converting to HLS…", "info");
-    data = await res.json();
-    if(!res.ok) throw new Error(data.error || `Server error ${res.status}`);
-  } catch(e){
-    setStatus("Error: " + e.message, "error");
-    stepsEl.style.display = "none";
-    loadBtn.disabled = false;
-    return;
-  }
-
-  setStep(4); doneSteps();
-  setStatus("Stream ready — press Play.", "success");
-  loadHLS(data.streamUrl);
-  loadBtn.disabled = false;
+// ═══════════════════════════════════
+//  OVERLAY / LOAD BAR
+// ═══════════════════════════════════
+function showOverlay(msg,pct=0){
+  loadOverlay.classList.remove("hidden");
+  loadMsg.textContent=msg;
+  loadBar.style.width=pct+"%";
+}
+function animateLoadBar(){
+  let p=5; clearInterval(lbTimer); loadBar.style.width="5%";
+  lbTimer=setInterval(()=>{
+    p=p<88?p+(88-p)*0.05+0.4:p;
+    loadBar.style.width=Math.min(p,88)+"%";
+  },140);
+}
+function finishOverlay(){
+  clearInterval(lbTimer);
+  loadBar.style.width="100%";
+  setTimeout(()=>loadOverlay.classList.add("hidden"),280);
 }
 
-// ─────────────────────────────────────────────
-//  HLS LOADER
-// ─────────────────────────────────────────────
-function loadHLS(url){
-  // destroy previous
-  if(hls){ hls.destroy(); hls = null; }
+// ═══════════════════════════════════
+//  DETECT TYPE
+// ═══════════════════════════════════
+function detectVideoType(url){
+  const u=url.toLowerCase().split("?")[0];
+  if(u.includes(".m3u8")||u.includes("m3u8")) return "hls";
+  if(u.includes(".mpd")||u.includes("mpd"))   return "dash";
+  if(u.includes(".mp4"))  return "mp4";
+  if(u.includes(".webm")) return "webm";
+  if(u.includes(".ogv")||u.includes(".ogg")) return "ogg";
+  if(u.includes("playlist")||u.includes("manifest")) return "hls";
+  return "native";
+}
+
+// ═══════════════════════════════════
+//  LAZY SCRIPT LOADER
+// ═══════════════════════════════════
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${src}"]`)){res();return;}
+    const s=document.createElement("script");
+    s.src=src;s.async=true;
+    s.onload=res; s.onerror=()=>rej(new Error("Script load failed: "+src));
+    document.head.appendChild(s);
+  });
+}
+
+// ═══════════════════════════════════
+//  DESTROY ALL PLAYERS
+// ═══════════════════════════════════
+function destroyPlayers(){
+  if(hlsInst){hlsInst.destroy();hlsInst=null;}
+  if(dashInst){try{dashInst.reset();dashInst=null;}catch(e){}}
   vid.pause();
   vid.removeAttribute("src");
-  vid.load();
-  currentUrl = url;
-  document.getElementById("streamUrlTxt").textContent = url;
+  try{vid.load();}catch(e){}
+}
 
-  // reset UI
-  seekBar.value = 0;
-  playedBar.style.width = "0%";
-  bufBar.style.width = "0%";
-  curT.textContent = "0:00";
-  durT.textContent = "0:00";
-  syncPlayIcon();
-  playerWrap.style.display = "block";
-  playerWrap.scrollIntoView({behavior:"smooth", block:"nearest"});
+// ═══════════════════════════════════
+//  LOAD HLS
+// ═══════════════════════════════════
+async function loadHLS(url){
+  showOverlay("Loading HLS engine…",10); animateLoadBar();
+  await loadScript(HLS_CDN);
+  if(!window.Hls) throw new Error("HLS.js unavailable");
 
-  if(Hls.isSupported()){
-    hls = new Hls({
-      maxBufferLength: 600,
-      maxMaxBufferLength: 600,
-      enableWorker: true,
-      lowLatencyMode: false,
-      startLevel: -1
-    });
-    hls.loadSource(url);
-    hls.attachMedia(vid);
-    hls.on(Hls.Events.MANIFEST_PARSED, ()=>{
-      setStatus("Stream ready — press Play.", "success");
-    });
-    hls.on(Hls.Events.ERROR, (_, d)=>{
-      if(d.fatal){
-        const t = d.type === Hls.ErrorTypes.NETWORK_ERROR ? "Network error." : "Fatal stream error.";
-        setStatus(t + " Try reloading.", "error");
-      }
-    });
-  } else if(vid.canPlayType("application/vnd.apple.mpegurl")){
-    vid.src = url;
-    setStatus("Native HLS — press Play.", "success");
-  } else {
-    setStatus("HLS is not supported in this browser.", "error");
+  if(!Hls.isSupported()){
+    if(vid.canPlayType("application/vnd.apple.mpegurl")){
+      vid.src=url; return;
+    }
+    throw new Error("HLS not supported in this browser");
+  }
+
+  hlsInst=new Hls({
+    lowLatencyMode:true,
+    maxBufferLength:60,
+    maxMaxBufferLength:120,
+    maxBufferHole:0.5,
+    startLevel:-1,
+    enableWorker:true,
+    progressive:true,
+    nudgeMaxRetry:5,
+  });
+  hlsInst.loadSource(url);
+  hlsInst.attachMedia(vid);
+  showOverlay("Parsing manifest…",30);
+
+  return new Promise((res,rej)=>{
+    hlsInst.on(Hls.Events.MANIFEST_PARSED,()=>{showOverlay("Buffering…",65);res();});
+    hlsInst.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal)rej(new Error("HLS "+d.details));});
+    setTimeout(()=>rej(new Error("HLS timeout")),18000);
+  });
+}
+
+// ═══════════════════════════════════
+//  LOAD DASH
+// ═══════════════════════════════════
+async function loadDASH(url){
+  showOverlay("Loading DASH engine…",10); animateLoadBar();
+  await loadScript(DASH_CDN);
+  if(!window.dashjs) throw new Error("dash.js unavailable");
+
+  dashInst=dashjs.MediaPlayer().create();
+  dashInst.initialize(vid,url,false);
+  dashInst.updateSettings({
+    streaming:{
+      lowLatencyEnabled:true,
+      buffer:{fastSwitchEnabled:true,bufferPruningInterval:10},
+    }
+  });
+  showOverlay("Parsing DASH manifest…",45);
+
+  return new Promise((res,rej)=>{
+    dashInst.on(dashjs.MediaPlayer.events.MANIFEST_LOADED,()=>{showOverlay("Buffering…",70);res();});
+    dashInst.on(dashjs.MediaPlayer.events.ERROR,e=>rej(new Error("DASH: "+(e.error?.message||"unknown"))));
+    setTimeout(()=>rej(new Error("DASH timeout")),18000);
+  });
+}
+
+// ═══════════════════════════════════
+//  LOAD NATIVE
+// ═══════════════════════════════════
+function loadNative(url){
+  showOverlay("Loading video…",20); animateLoadBar();
+  vid.src=url; vid.load();
+  return new Promise((res,rej)=>{
+    function onOk(){cleanup();res();}
+    function onErr(){cleanup();rej(new Error("Cannot load video. Check URL/format."));}
+    function cleanup(){vid.removeEventListener("canplay",onOk);vid.removeEventListener("error",onErr);}
+    vid.addEventListener("canplay",onOk,{once:true});
+    vid.addEventListener("error",onErr,{once:true});
+    setTimeout(()=>{cleanup();rej(new Error("Video load timeout"));},22000);
+  });
+}
+
+// ═══════════════════════════════════
+//  MAIN LOAD HANDLER
+// ═══════════════════════════════════
+async function handleLoad(urlOverride){
+  const raw=(urlOverride||document.getElementById("videoUrl").value.trim());
+  if(!raw){setStatus("Paste a video URL first.","error");return;}
+
+  try{new URL(raw);}catch{setStatus("Invalid URL — must start with http:// or https://","error");return;}
+
+  if(urlOverride) document.getElementById("videoUrl").value=urlOverride;
+
+  lastUrl=raw;
+  loadBtn.disabled=true;
+  stepsEl.style.display="none";
+  playerWrap.style.display="none";
+  dismissResume();
+
+  const type=detectVideoType(raw);
+  setStatus("Detected: "+type.toUpperCase()+" — loading…","info");
+  showPlayerUI(raw);
+  destroyPlayers();
+  resetPlayerUI();
+
+  if(type==="mp4"||type==="webm"||type==="ogg"||type==="native"){
+    await handleDirect(raw,type);
+  } else if(type==="hls"){
+    await tryHLS(raw);
+  } else if(type==="dash"){
+    await tryDASH(raw);
+  }
+
+  loadBtn.disabled=false;
+}
+
+// Direct / native
+async function handleDirect(url,type){
+  try{
+    await loadNative(url);
+    onReady(url,type);
+  } catch(e){
+    // fallback: try HLS
+    setStatus("Direct failed. Trying HLS conversion…","warn");
+    destroyPlayers();
+    try{
+      await loadHLS(url);
+      onReady(url,"hls");
+    } catch(e2){
+      // last resort: backend
+      await convertBackend(url);
+    }
   }
 }
 
-// ─────────────────────────────────────────────
-//  PLAY / PAUSE  — single source of truth
-// ─────────────────────────────────────────────
+// HLS with native fallback
+async function tryHLS(url){
+  try{
+    await loadHLS(url);
+    onReady(url,"hls");
+  } catch(e){
+    setStatus("HLS failed: "+e.message+". Trying native…","warn");
+    destroyPlayers();
+    try{
+      await loadNative(url);
+      onReady(url,"native");
+    } catch(e2){
+      onError(url,e2.message,true);
+    }
+  }
+}
+
+// DASH with HLS fallback
+async function tryDASH(url){
+  try{
+    await loadDASH(url);
+    onReady(url,"dash");
+  } catch(e){
+    setStatus("DASH failed. Trying native…","warn");
+    destroyPlayers();
+    try{
+      await loadNative(url);
+      onReady(url,"native");
+    } catch(e2){
+      onError(url,e2.message,true);
+    }
+  }
+}
+
+// Backend HLS conversion
+async function convertBackend(url){
+  setStep(1); setStatus("Validating with server…","info");
+  await sleep(200);
+  setStep(2); setStatus("Server downloading video…","info");
+  try{
+    const res=await fetch(`${BACKEND}/convert`,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({url})
+    });
+    setStep(3); setStatus("Converting to HLS…","info");
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||"Server "+res.status);
+    setStep(4); doneSteps();
+    destroyPlayers();
+    await loadHLS(data.streamUrl);
+    onReady(data.streamUrl,"hls");
+  } catch(e){
+    onError(url,e.message,true);
+  }
+}
+
+function onReady(url,type){
+  finishOverlay();
+  currentUrl=url;
+  document.getElementById("streamUrlTxt").textContent=url;
+  setStatus(type.toUpperCase()+" ready","success");
+  addHistory(url,type);
+  startMutedAutoplay(url);
+}
+
+function onError(url,msg,retry=false){
+  finishOverlay();
+  clearInterval(lbTimer);
+  loadOverlay.classList.add("hidden");
+  setStatus("Error: "+msg,"error",retry);
+}
+
+function retryLoad(){ if(lastUrl) handleLoad(lastUrl); }
+
+// ═══════════════════════════════════
+//  MUTED AUTOPLAY → instant start
+// ═══════════════════════════════════
+function startMutedAutoplay(url){
+  const savedVol=parseFloat(volSlider.dataset.sv||"1");
+  vid.muted=true; vid.volume=0;
+  vid.play()
+    .then(()=>{
+      setTimeout(()=>{
+        vid.muted=false; vid.volume=savedVol;
+        volSlider.value=savedVol; updateVolIcon(savedVol);
+      },350);
+      checkResume(url);
+    })
+    .catch(()=>{
+      vid.muted=false; vid.volume=savedVol;
+      volSlider.value=savedVol; updateVolIcon(savedVol);
+      checkResume(url);
+    });
+}
+
+// ═══════════════════════════════════
+//  RESUME
+// ═══════════════════════════════════
+function checkResume(url){
+  const t=parseFloat(localStorage.getItem(resumeKey(url))||"0");
+  if(t>5){
+    pendingRes=t;
+    document.getElementById("resumeTime").textContent=fmtTime(t);
+    resumeToast.classList.add("visible");
+    setTimeout(dismissResume,9000);
+  }
+}
+function doResume(){
+  if(pendingRes>0) vid.currentTime=pendingRes;
+  dismissResume();
+}
+function dismissResume(){
+  pendingRes=0;
+  resumeToast.classList.remove("visible");
+}
+
+// Save position every 5s
+setInterval(()=>{
+  if(currentUrl&&vid.currentTime>5&&!vid.ended&&!vid.paused){
+    try{localStorage.setItem(resumeKey(currentUrl),vid.currentTime.toFixed(1));}catch(e){}
+  }
+},5000);
+
+// ═══════════════════════════════════
+//  SHOW / RESET PLAYER UI
+// ═══════════════════════════════════
+function showPlayerUI(url){
+  playerWrap.style.display="block";
+  document.getElementById("streamUrlTxt").textContent=url;
+  playerWrap.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function resetPlayerUI(){
+  seekBar.value=0;
+  playedBar.style.width="0%";
+  bufBar.style.width="0%";
+  seekThumb.style.left="0%";
+  curT.textContent="0:00";
+  durT.textContent="0:00";
+  syncPlayIcon();
+}
+
+// ═══════════════════════════════════
+//  PLAY / PAUSE
+// ═══════════════════════════════════
 function togglePlay(){
   if(!currentUrl) return;
-  vid.paused ? vid.play().catch(e => setStatus("Playback error: "+e.message,"error")) : vid.pause();
+  vid.paused||vid.ended
+    ? vid.play().catch(e=>setStatus("Playback blocked: "+e.message,"warn"))
+    : vid.pause();
 }
-
 function syncPlayIcon(){
-  const paused = vid.paused;
-  ppIcon.innerHTML = paused
-    ? '<path d="M8 5v14l11-7z"/>'
-    : '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-  ppLbl.textContent = paused ? "Play" : "Pause";
+  const p=vid.paused||vid.ended;
+  ppIcon.innerHTML=p?'<path d="M8 5v14l11-7z"/>':'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+  ppLbl.textContent=p?"Play":"Pause";
 }
+vid.addEventListener("play",syncPlayIcon);
+vid.addEventListener("pause",syncPlayIcon);
+vid.addEventListener("ended",syncPlayIcon);
+vid.addEventListener("playing",finishOverlay);
+vid.addEventListener("canplay",()=>{ if(loadBar.style.width!=="100%") loadBar.style.width="88%"; });
+vid.addEventListener("click",e=>{ if(e.target===vid) togglePlay(); });
 
-vid.addEventListener("play",  syncPlayIcon);
-vid.addEventListener("pause", syncPlayIcon);
-vid.addEventListener("ended", syncPlayIcon);
-// click video to toggle
-vid.addEventListener("click", togglePlay);
-
-// ─────────────────────────────────────────────
-//  SEEK BAR — smooth with played highlight
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
+//  SEEK BAR
+// ═══════════════════════════════════
 function fmtTime(s){
   if(!isFinite(s)||s<0) return "0:00";
-  const h = Math.floor(s/3600);
-  const m = Math.floor((s%3600)/60);
-  const sec = Math.floor(s%60).toString().padStart(2,"0");
-  return h > 0 ? `${h}:${m.toString().padStart(2,"0")}:${sec}` : `${m}:${sec}`;
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);
+  return h>0?`${h}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`:`${m}:${String(sec).padStart(2,"0")}`;
 }
-
-function updateProgress(){
-  if(!vid.duration || seekDragging) return;
-  const pct = vid.currentTime / vid.duration;
-  const val = Math.round(pct * 1000);
-  seekBar.value = val;
-  playedBar.style.width = (pct*100).toFixed(2)+"%";
-  curT.textContent = fmtTime(vid.currentTime);
+function updateSeekUI(pct){
+  const p=(pct*100).toFixed(3);
+  seekBar.value=Math.round(pct*10000);
+  playedBar.style.width=p+"%";
+  seekThumb.style.left=p+"%";
 }
-
-vid.addEventListener("timeupdate", updateProgress);
-
-vid.addEventListener("durationchange", ()=>{
-  durT.textContent = fmtTime(vid.duration);
+vid.addEventListener("timeupdate",()=>{
+  if(seekDragging||!vid.duration) return;
+  updateSeekUI(vid.currentTime/vid.duration);
+  curT.textContent=fmtTime(vid.currentTime);
+});
+vid.addEventListener("durationchange",()=>{ durT.textContent=fmtTime(vid.duration); });
+vid.addEventListener("progress",()=>{
+  if(!vid.duration||!vid.buffered.length) return;
+  bufBar.style.width=((vid.buffered.end(vid.buffered.length-1)/vid.duration)*100).toFixed(2)+"%";
 });
 
-vid.addEventListener("progress", ()=>{
-  if(!vid.duration || !vid.buffered.length) return;
-  const b = vid.buffered.end(vid.buffered.length-1);
-  bufBar.style.width = ((b/vid.duration)*100).toFixed(2)+"%";
-});
-
-// Seek drag — smooth with no stutter
-seekBar.addEventListener("mousedown", ()=>{ seekDragging=true; });
-seekBar.addEventListener("touchstart", ()=>{ seekDragging=true; }, {passive:true});
-
-seekBar.addEventListener("input", ()=>{
+seekBar.addEventListener("mousedown",()=>seekDragging=true);
+seekBar.addEventListener("touchstart",()=>seekDragging=true,{passive:true});
+seekBar.addEventListener("input",()=>{
   if(!vid.duration) return;
-  const pct = seekBar.value / 1000;
-  playedBar.style.width = (pct*100).toFixed(2)+"%";
-  curT.textContent = fmtTime(pct * vid.duration);
+  const pct=seekBar.value/10000;
+  updateSeekUI(pct);
+  const t=fmtTime(pct*vid.duration);
+  curT.textContent=t;
+  seekTooltip.textContent=t;
+  seekTooltip.style.left=(pct*100)+"%";
 });
+seekBar.addEventListener("change",()=>{
+  seekDragging=false;
+  if(vid.duration) vid.currentTime=(seekBar.value/10000)*vid.duration;
+});
+seekBar.addEventListener("mouseup",()=>seekDragging=false);
+seekBar.addEventListener("touchend",()=>seekDragging=false);
 
-seekBar.addEventListener("change", ()=>{
-  seekDragging = false;
+document.getElementById("progWrap").addEventListener("mousemove",e=>{
   if(!vid.duration) return;
-  vid.currentTime = (seekBar.value / 1000) * vid.duration;
+  const r=e.currentTarget.getBoundingClientRect();
+  const pct=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  seekTooltip.textContent=fmtTime(pct*vid.duration);
+  seekTooltip.style.left=(pct*100)+"%";
 });
 
-seekBar.addEventListener("mouseup", ()=>{ seekDragging=false; });
-seekBar.addEventListener("touchend", ()=>{ seekDragging=false; });
-
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 //  SKIP
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 function skip(sec){
   if(!vid.duration) return;
-  vid.currentTime = Math.max(0, Math.min(vid.duration, vid.currentTime + sec));
+  vid.currentTime=Math.max(0,Math.min(vid.duration,vid.currentTime+sec));
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 //  VOLUME
-// ─────────────────────────────────────────────
-const volPathEl = document.getElementById("volPath");
-
+// ═══════════════════════════════════
 function setVol(v){
-  v = parseFloat(v);
-  vid.volume = v;
-  vid.muted = v === 0;
-  volSlider.value = v;
+  v=Math.max(0,Math.min(1,parseFloat(v)));
+  vid.volume=v; vid.muted=v===0;
+  volSlider.value=v;
+  if(v>0) volSlider.dataset.sv=v;
   updateVolIcon(v);
 }
-
 function toggleMute(){
-  if(vid.muted || vid.volume === 0){
-    const prev = parseFloat(volSlider.dataset.prev||"1");
-    setVol(prev);
+  if(vid.muted||vid.volume===0){
+    setVol(parseFloat(volSlider.dataset.sv||"1"));
   } else {
-    volSlider.dataset.prev = vid.volume;
-    setVol(0);
+    volSlider.dataset.sv=vid.volume; setVol(0);
   }
 }
-
 function updateVolIcon(v){
   let d;
-  if(v<=0 || vid.muted){
+  if(v<=0||vid.muted)
     d='M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z';
-  } else if(v<0.5){
+  else if(v<0.5)
     d='M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z';
-  } else {
+  else
     d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z';
-  }
-  volPathEl.setAttribute("d", d);
+  volPath.setAttribute("d",d);
 }
-
-vid.addEventListener("volumechange", ()=>{
-  updateVolIcon(vid.muted ? 0 : vid.volume);
-  if(!vid.muted) volSlider.value = vid.volume;
+vid.addEventListener("volumechange",()=>{
+  updateVolIcon(vid.muted?0:vid.volume);
+  if(!vid.muted) volSlider.value=vid.volume;
 });
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 //  SPEED
-// ─────────────────────────────────────────────
-function setSpeed(v){
-  vid.playbackRate = parseFloat(v);
-}
+// ═══════════════════════════════════
+function setSpeed(v){ vid.playbackRate=parseFloat(v); }
 
-// ─────────────────────────────────────────────
-//  FULLSCREEN
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
+//  FULLSCREEN (manual only)
+// ═══════════════════════════════════
 function toggleFS(){
-  const fsEl = shell;
-  if(!document.fullscreenElement && !document.webkitFullscreenElement){
-    (fsEl.requestFullscreen||fsEl.webkitRequestFullscreen).call(fsEl);
+  if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+    (shell.requestFullscreen||shell.webkitRequestFullscreen).call(shell);
   } else {
     (document.exitFullscreen||document.webkitExitFullscreen).call(document);
   }
 }
-
 function onFSChange(){
-  const isFS = !!(document.fullscreenElement||document.webkitFullscreenElement);
-  fsIcon.innerHTML = isFS
-    ? '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>'
-    : '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
-  document.getElementById("fsBtn").className = "cb" + (isFS?" active":"");
+  const fs=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  fsIcon.innerHTML=fs
+    ?'<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>'
+    :'<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
+  document.getElementById("fsBtn").className="cb"+(fs?" active":"");
 }
+document.addEventListener("fullscreenchange",onFSChange);
+document.addEventListener("webkitfullscreenchange",onFSChange);
 
-document.addEventListener("fullscreenchange", onFSChange);
-document.addEventListener("webkitfullscreenchange", onFSChange);
-
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 //  PICTURE-IN-PICTURE
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 async function togglePiP(){
   try{
     if(document.pictureInPictureElement){
       await document.exitPictureInPicture();
-      document.getElementById("pipBtn").className = "cb";
+      document.getElementById("pipBtn").className="cb";
     } else if(document.pictureInPictureEnabled){
       await vid.requestPictureInPicture();
-      document.getElementById("pipBtn").className = "cb active";
+      document.getElementById("pipBtn").className="cb active";
     }
-  } catch(e){ /* browser may block without play */ }
+  }catch(e){}
+}
+vid.addEventListener("leavepictureinpicture",()=>{ document.getElementById("pipBtn").className="cb"; });
+
+// ═══════════════════════════════════
+//  DOUBLE-TAP SKIP (mobile)
+// ═══════════════════════════════════
+let tapTimer=null,tapSide=null;
+shell.addEventListener("touchend",e=>{
+  if(e.target===seekBar) return;
+  const touch=e.changedTouches[0];
+  const rect=shell.getBoundingClientRect();
+  const left=(touch.clientX-rect.left)<rect.width/2;
+  if(tapTimer!==null&&tapSide===left){
+    clearTimeout(tapTimer);tapTimer=null;
+    skip(left?-10:10);
+    showTap(left?tapL:tapR);
+  } else {
+    tapSide=left;
+    tapTimer=setTimeout(()=>{tapTimer=null;togglePlay();},220);
+  }
+},{passive:true});
+
+function showTap(el){
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),550);
 }
 
-vid.addEventListener("leavepictureinpicture", ()=>{
-  document.getElementById("pipBtn").className = "cb";
-});
-
-// ─────────────────────────────────────────────
-//  KEYBOARD SHORTCUTS
-// ─────────────────────────────────────────────
-document.addEventListener("keydown", e=>{
-  const tag = document.activeElement.tagName;
+// ═══════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════
+document.addEventListener("keydown",e=>{
+  const tag=document.activeElement.tagName;
   if(tag==="INPUT"||tag==="SELECT"||tag==="TEXTAREA") return;
   switch(e.key){
-    case " ": case "k": e.preventDefault(); togglePlay(); break;
-    case "ArrowRight": e.preventDefault(); skip(e.shiftKey?30:10); break;
-    case "ArrowLeft":  e.preventDefault(); skip(e.shiftKey?-30:-10); break;
-    case "ArrowUp":    e.preventDefault(); setVol(Math.min(1,(vid.volume+.1).toFixed(2))); break;
-    case "ArrowDown":  e.preventDefault(); setVol(Math.max(0,(vid.volume-.1).toFixed(2))); break;
-    case "m": case "M": toggleMute(); break;
-    case "f": case "F": toggleFS(); break;
-    case "p": case "P": togglePiP(); break;
+    case " ":case "k":e.preventDefault();togglePlay();break;
+    case "ArrowRight":e.preventDefault();skip(e.shiftKey?30:10);break;
+    case "ArrowLeft": e.preventDefault();skip(e.shiftKey?-30:-10);break;
+    case "ArrowUp":   e.preventDefault();setVol(Math.min(1,+(vid.volume+.1).toFixed(2)));break;
+    case "ArrowDown": e.preventDefault();setVol(Math.max(0,+(vid.volume-.1).toFixed(2)));break;
+    case "m":case "M":toggleMute();break;
+    case "f":case "F":toggleFS();break;
+    case "p":case "P":togglePiP();break;
+    case "r":case "R":retryLoad();break;
   }
 });
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 //  COPY URL
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 function copyUrl(){
   if(!currentUrl) return;
   navigator.clipboard.writeText(currentUrl).then(()=>{
-    const b = document.getElementById("copyBtn");
-    b.textContent = "COPIED!";
-    setTimeout(()=>b.textContent="COPY", 1800);
-  });
+    const b=document.getElementById("copyBtn");
+    b.textContent="COPIED!";
+    setTimeout(()=>b.textContent="COPY",1800);
+  }).catch(()=>{});
 }
 
-// ─────────────────────────────────────────────
-//  ENTER KEY ON INPUT
-// ─────────────────────────────────────────────
-document.getElementById("videoUrl").addEventListener("keydown", e=>{
+// ═══════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════
+function getHist(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||"[]");}catch{return [];}}
+function saveHist(h){try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}}
+
+function addHistory(url,type){
+  let h=getHist().filter(x=>x.url!==url);
+  h.unshift({url,type,name:extractName(url),ts:Date.now()});
+  if(h.length>MAX_HIST) h=h.slice(0,MAX_HIST);
+  saveHist(h); renderHistory();
+}
+
+function extractName(url){
+  try{
+    const p=new URL(url).pathname;
+    const parts=p.split("/").filter(Boolean);
+    const last=decodeURIComponent(parts[parts.length-1]||"");
+    const name=last.replace(/\.[^.]+$/,"").replace(/[-_.+]/g," ").trim();
+    return name.length>2?name.charAt(0).toUpperCase()+name.slice(1):new URL(url).hostname;
+  }catch{return url.slice(0,40);}
+}
+
+function escH(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function renderHistory(){
+  const h=getHist();
+  const wrap=document.getElementById("historyWrap");
+  if(!h.length){wrap.style.display="none";return;}
+  wrap.style.display="block";
+  const tCls={hls:"t-hls",dash:"t-dash",mp4:"t-mp4",webm:"t-webm",native:"t-native"};
+  document.getElementById("histList").innerHTML=h.map(item=>{
+    const cls=tCls[item.type]||"t-native";
+    const enc=encodeURIComponent(item.url);
+    return `<div class="hist-item" onclick="playHist('${enc}')">
+      <div class="hist-thumb"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.11 0-2 .89-2 2v12a2 2 0 002 2h5v2h8v-2h5c1.1 0 2-.9 2-2L23 5a2 2 0 00-2-2zm0 14H3V5h18v12zm-5-6l-7 4V7z"/></svg></div>
+      <div class="hist-info">
+        <div class="hist-name">${escH(item.name)}</div>
+        <div class="hist-url">${escH(item.url.length>65?item.url.slice(0,65)+"…":item.url)}</div>
+      </div>
+      <div class="hist-meta">
+        <span class="hist-type ${cls}">${item.type.toUpperCase()}</span>
+        <button class="hist-play" onclick="event.stopPropagation();playHist('${enc}')">▶ Play</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function playHist(enc){
+  const url=decodeURIComponent(enc);
+  document.getElementById("videoUrl").value=url;
+  handleLoad(url);
+}
+function clearHistory(){saveHist([]);renderHistory();}
+
+// ═══════════════════════════════════
+//  ENTER KEY
+// ═══════════════════════════════════
+document.getElementById("videoUrl").addEventListener("keydown",e=>{
   if(e.key==="Enter") handleLoad();
 });
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════
 //  UTILS
-// ─────────────────────────────────────────────
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+// ═══════════════════════════════════
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ═══════════════════════════════════
+//  INIT
+// ═══════════════════════════════════
+renderHistory();
 </script>
 </body>
 </html>
