@@ -314,7 +314,7 @@ footer{text-align:center;padding:24px;font-family:'JetBrains Mono',monospace;fon
   <div class="logo">SMOOTH<span>VIEW</span></div>
   <div class="header-right">
     <span class="kbd-hint">SPC · ←→ · M · F · P</span>
-    <div class="pill">v3.0</div>
+    <div class="pill">v3.1</div>
   </div>
 </header>
 
@@ -614,11 +614,17 @@ async function loadHLS(url){
     lowLatencyMode:true,
     maxBufferLength:60,
     maxMaxBufferLength:120,
+    backBufferLength:90,
     maxBufferHole:0.5,
+    maxSeekHole:2,
     startLevel:-1,
     enableWorker:true,
     progressive:true,
-    nudgeMaxRetry:5,
+    nudgeMaxRetry:10,
+    fragLoadingMaxRetry:6,
+    manifestLoadingMaxRetry:3,
+    levelLoadingMaxRetry:6,
+    maxFragLookUpTolerance:0.25,
   });
   hlsInst.loadSource(url);
   hlsInst.attachMedia(vid);
@@ -644,7 +650,13 @@ async function loadDASH(url){
   dashInst.updateSettings({
     streaming:{
       lowLatencyEnabled:true,
-      buffer:{fastSwitchEnabled:true,bufferPruningInterval:10},
+      buffer:{
+        fastSwitchEnabled:true,
+        bufferPruningInterval:10,
+        bufferTimeAtTopQuality:30,
+        bufferTimeAtTopQualityLongForm:60,
+        stableBufferTime:30,
+      },
     }
   });
   showOverlay("Parsing DASH manifest…",45);
@@ -888,63 +900,141 @@ vid.addEventListener("canplay",()=>{ if(loadBar.style.width!=="100%") loadBar.st
 vid.addEventListener("click",e=>{ if(e.target===vid) togglePlay(); });
 
 // ═══════════════════════════════════
-//  SEEK BAR
+//  SEEK ENGINE — bulletproof, no restart
 // ═══════════════════════════════════
-function fmtTime(s){
-  if(!isFinite(s)||s<0) return "0:00";
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);
-  return h>0?`${h}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`:`${m}:${String(sec).padStart(2,"0")}`;
-}
-function updateSeekUI(pct){
-  const p=(pct*100).toFixed(3);
-  seekBar.value=Math.round(pct*10000);
-  playedBar.style.width=p+"%";
-  seekThumb.style.left=p+"%";
-}
-vid.addEventListener("timeupdate",()=>{
-  if(seekDragging||!vid.duration) return;
-  updateSeekUI(vid.currentTime/vid.duration);
-  curT.textContent=fmtTime(vid.currentTime);
-});
-vid.addEventListener("durationchange",()=>{ durT.textContent=fmtTime(vid.duration); });
-vid.addEventListener("progress",()=>{
-  if(!vid.duration||!vid.buffered.length) return;
-  bufBar.style.width=((vid.buffered.end(vid.buffered.length-1)/vid.duration)*100).toFixed(2)+"%";
+let lastValidTime = 0;       // fallback if seek goes wrong
+let seekIndicator = false;   // are we currently in a seek?
+let wasPlayingBeforeSeek = false;
+
+// Track last valid playback position continuously
+vid.addEventListener("timeupdate", () => {
+  if (!seekDragging && !seekIndicator && vid.currentTime > 0) {
+    lastValidTime = vid.currentTime;
+  }
 });
 
-seekBar.addEventListener("mousedown",()=>seekDragging=true);
-seekBar.addEventListener("touchstart",()=>seekDragging=true,{passive:true});
-seekBar.addEventListener("input",()=>{
-  if(!vid.duration) return;
-  const pct=seekBar.value/10000;
+// ── safeSeek: the ONE place currentTime is ever changed ──
+function safeSeek(targetTime) {
+  if (!vid.duration || vid.readyState < 1) return;
+  // Clamp strictly within valid range (leave 0.1s margin at end)
+  const clamped = Math.max(0, Math.min(vid.duration - 0.1, targetTime));
+  // Guard: never allow a seek to 0 unless explicitly requested to 0
+  if (clamped === 0 && targetTime > 0) return;
+  wasPlayingBeforeSeek = !vid.paused;
+  vid.currentTime = clamped;
+}
+
+// ── skip: add/subtract seconds, never restarts player ──
+function skip(seconds) {
+  if (!currentUrl || !vid.duration) return;
+  // readyState 0 = no source, 1 = metadata only — both are skippable
+  // but readyState 0 means nothing loaded, bail out
+  if (vid.readyState < 1) return;
+  safeSeek(vid.currentTime + seconds);
+}
+
+// ── seek events: show/hide mini seek indicator ──
+vid.addEventListener("seeking", () => {
+  seekIndicator = true;
+  // Show a subtle seeking flash on the overlay (not the full overlay)
+  loadMsg.textContent = "Seeking…";
+  loadBar.style.width = "50%";
+  loadOverlay.classList.remove("hidden");
+});
+
+vid.addEventListener("seeked", () => {
+  seekIndicator = false;
+  finishOverlay();
+  // If was playing before seek, ensure we resume
+  if (wasPlayingBeforeSeek && vid.paused) {
+    vid.play().catch(() => {});
+  }
+});
+
+// ── stalled/error: restore last valid time instead of resetting to 0 ──
+vid.addEventListener("stalled", () => {
+  // Don't reset to 0 — HLS/DASH will recover naturally
+});
+
+vid.addEventListener("error", () => {
+  // Only restore if we've drifted back to 0 suspiciously
+  if (vid.currentTime === 0 && lastValidTime > 5) {
+    setTimeout(() => {
+      if (vid.currentTime === 0 && lastValidTime > 5) {
+        safeSeek(lastValidTime);
+      }
+    }, 500);
+  }
+});
+
+// ── progress bar UI (never triggers seek itself) ──
+function fmtTime(s) {
+  if (!isFinite(s) || s < 0) return "0:00";
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+  return h > 0
+    ? `${h}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`
+    : `${m}:${String(sec).padStart(2,"0")}`;
+}
+
+function updateSeekUI(pct) {
+  const p = (pct * 100).toFixed(3);
+  seekBar.value = Math.round(pct * 10000);
+  playedBar.style.width = p + "%";
+  seekThumb.style.left = p + "%";
+}
+
+vid.addEventListener("timeupdate", () => {
+  if (seekDragging || !vid.duration) return;
+  updateSeekUI(vid.currentTime / vid.duration);
+  curT.textContent = fmtTime(vid.currentTime);
+});
+
+vid.addEventListener("durationchange", () => {
+  durT.textContent = fmtTime(vid.duration);
+});
+
+vid.addEventListener("progress", () => {
+  if (!vid.duration || !vid.buffered.length) return;
+  // Show the furthest buffered point
+  let maxBuf = 0;
+  for (let i = 0; i < vid.buffered.length; i++) {
+    if (vid.buffered.end(i) > maxBuf) maxBuf = vid.buffered.end(i);
+  }
+  bufBar.style.width = ((maxBuf / vid.duration) * 100).toFixed(2) + "%";
+});
+
+// ── drag seeking ──
+seekBar.addEventListener("mousedown", () => { seekDragging = true; wasPlayingBeforeSeek = !vid.paused; });
+seekBar.addEventListener("touchstart", () => { seekDragging = true; wasPlayingBeforeSeek = !vid.paused; }, {passive:true});
+
+seekBar.addEventListener("input", () => {
+  if (!vid.duration) return;
+  const pct = seekBar.value / 10000;
   updateSeekUI(pct);
-  const t=fmtTime(pct*vid.duration);
-  curT.textContent=t;
-  seekTooltip.textContent=t;
-  seekTooltip.style.left=(pct*100)+"%";
-});
-seekBar.addEventListener("change",()=>{
-  seekDragging=false;
-  if(vid.duration) vid.currentTime=(seekBar.value/10000)*vid.duration;
-});
-seekBar.addEventListener("mouseup",()=>seekDragging=false);
-seekBar.addEventListener("touchend",()=>seekDragging=false);
-
-document.getElementById("progWrap").addEventListener("mousemove",e=>{
-  if(!vid.duration) return;
-  const r=e.currentTarget.getBoundingClientRect();
-  const pct=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
-  seekTooltip.textContent=fmtTime(pct*vid.duration);
-  seekTooltip.style.left=(pct*100)+"%";
+  const t = fmtTime(pct * vid.duration);
+  curT.textContent = t;
+  seekTooltip.textContent = t;
+  seekTooltip.style.left = (pct * 100) + "%";
 });
 
-// ═══════════════════════════════════
-//  SKIP
-// ═══════════════════════════════════
-function skip(sec){
-  if(!vid.duration) return;
-  vid.currentTime=Math.max(0,Math.min(vid.duration,vid.currentTime+sec));
-}
+seekBar.addEventListener("change", () => {
+  seekDragging = false;
+  if (!vid.duration) return;
+  const target = (seekBar.value / 10000) * vid.duration;
+  safeSeek(target);
+});
+
+seekBar.addEventListener("mouseup", () => { seekDragging = false; });
+seekBar.addEventListener("touchend", () => { seekDragging = false; });
+
+// ── hover tooltip ──
+document.getElementById("progWrap").addEventListener("mousemove", e => {
+  if (!vid.duration) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  seekTooltip.textContent = fmtTime(pct * vid.duration);
+  seekTooltip.style.left = (pct * 100) + "%";
+});
 
 // ═══════════════════════════════════
 //  VOLUME
